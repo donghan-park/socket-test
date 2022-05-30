@@ -21,43 +21,50 @@ const io = new Server(server, {
 
 var roomsList = [];
 
-// socket connection
-io.on("connection", (socket) => {
-    console.log(`user connected: ${socket.id}`);
-    socket.on("send_msg", (data) => {
-        if(socket.currRoom) socket.broadcast.to(socket.currRoom).emit("receive_msg", data);
+const onSocketConnect = (socket) => {
+    socket.on('send_msg', (data) => {
+        if(socket.currRoom){
+            // io.in(socket.currRoom).emit('receive_msg', data);
+            socket.to(socket.currRoom).emit('receive_msg', data);
+        }
+    });
+    
+    socket.on('disconnect', (reason) => {
+        console.log(`user disconnected: ${socket.id}`);
     });
 
-    socket.on("disconnect", (reason) => {
-        console.log(`user disconnected: ${socket.id}`);
-    })
+    socket.on('get_roomsList', () => {
+        socket.emit('receive_roomsList', roomsList);
+    });
 
-    socket.on("get_roomsList", () => {
-        socket.emit("receive_roomsList", roomsList);
-    })
-
-    socket.on("host_room", (roomName) => {
-        if(!(roomsList.includes(roomName))){
+    socket.on('host_room', (roomName) => {
+        if(!roomsList.includes(roomName)){
             roomsList.push(roomName);
-            io.emit("receive_roomsList", roomsList);
+            io.emit('receive_roomsList', roomsList);
         } else {
             socket.emit('invalid_room');
         }
-    })
+    });
 
-    socket.on("get_current_room", () => {
-        socket.emit("receive_current_room", Array.from(socket.rooms)[0]);
-    })
+    socket.on('get_current_room', () => {
+        socket.emit('receive_current_room', socket.currRoom ?? 'not in a room');
+    });
 
-    socket.on("join_room", (roomName) => {
+    socket.on('join_room', (roomName) => {
         if(socket.currRoom){
             socket.leave(socket.currRoom);
             socket.currRoom = null;
         }
         socket.join(roomName);
         socket.currRoom = roomName;
-        socket.emit("receive_current_room", roomName);
-    })
+        socket.emit('receive_current_room', roomName);
+    });
+}
+
+// socket connection
+io.on("connection", (socket) => {
+    console.log(`user connected: ${socket.id}`);
+    onSocketConnect(socket);
 });
 
 // initialize server listener

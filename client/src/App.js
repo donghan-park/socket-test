@@ -5,24 +5,20 @@ import {useState, useEffect} from 'react';
 const socket = io(`http://${window.location.hostname}:3001`);
 
 function App() {
-
     const [ message, setMessage ] = useState("");
     const [ displayMsg, setDisplayMsg ] = useState("");
-
     const [ hostRoomName, setHostRoomName ] = useState("");
-
     const [ roomsList, setRoomsList ] = useState([]);
-
     const [ currentRoom, setCurrentRoom ] = useState("");
 
     // client-to-server emitter
     const sendMessage = () => {
         socket.emit("send_msg", message);
-    };
+    }
 
     const hostNewRoom = () => {
         socket.emit("host_room", hostRoomName);
-    };
+    }
 
     const onKeyEnter = (e, func) => {
         if(e.key === 'Enter'){
@@ -48,7 +44,7 @@ function App() {
         });
         socket.on('invalid_room', () => {
             console.log('invalid room name');
-        })
+        });
     }, []);
 
     const joinNewRoom = (roomName) => {
@@ -70,7 +66,7 @@ function App() {
             <div className="rooms-container">
                 {roomsList.length > 0 ?
                 roomsList.map(roomName => {
-                    return <p onClick={() => joinNewRoom(roomName)}>{roomName}</p>
+                    return <p key={roomName} onClick={() => joinNewRoom(roomName)}>{roomName}</p>
                 }) : <p>no rooms found</p>}
             </div>
             <input placeholder='new room name' 
