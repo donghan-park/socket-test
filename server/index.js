@@ -37,8 +37,12 @@ io.on("connection", (socket) => {
     })
 
     socket.on("host_room", (roomName) => {
-        roomsList.push(roomName);
-        io.emit("receive_roomsList", roomsList);
+        if(!(roomsList.includes(roomName))){
+            roomsList.push(roomName);
+            io.emit("receive_roomsList", roomsList);
+        } else {
+            socket.emit('invalid_room');
+        }
     })
 
     socket.on("get_current_room", () => {
@@ -54,7 +58,6 @@ io.on("connection", (socket) => {
         socket.currRoom = roomName;
         socket.emit("receive_current_room", roomName);
     })
-    // console.log(Array.from(io.sockets.adapter.rooms.keys()))
 });
 
 // initialize server listener
