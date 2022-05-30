@@ -1,9 +1,9 @@
 const express = require("express");
 const app = express();
+const port = process.env.port || 3001;
 
 // http server
 const http = require("http");
-const { Server } = require("socket.io");
 const server = http.createServer(app);
 
 // cors middleware
@@ -11,9 +11,10 @@ const cors = require("cors");
 app.use(cors());
 
 // create socket.io server
+const { Server } = require("socket.io");
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3000",
+        origin: "*",
         methods: ["GET", "POST"],
     }
 });
@@ -26,12 +27,11 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", (reason) => {
-        console.log(`user disconnected: ${socket.id}`)
-        console.log(reason)
+        console.log(`user disconnected: ${socket.id}`);
     })
 });
 
 // initialize server listener
-server.listen(3001, () => {
+server.listen(port, () => {
     console.log("SERVER IS RUNNING");
 });
