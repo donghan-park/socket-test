@@ -13,9 +13,11 @@ function App() {
 
     const [ roomsList, setRoomsList ] = useState(['yolo', 'room1']);
 
+    const [ currentRoom, setCurrentRoom ] = useState("");
+
     // client-to-server emitter
     const sendMessage = () => {
-        socket.emit("send_msg", { message });
+        socket.emit("send_msg", message);
     };
 
     const hostNewRoom = () => {
@@ -25,6 +27,7 @@ function App() {
     // server-to-client listener
     useEffect(() => {
         socket.emit("get_roomsList");
+        socket.emit("get_current_room");
     }, []);
 
     useEffect(() => {
@@ -32,9 +35,16 @@ function App() {
             setRoomsList(data);
         })
         socket.on("receive_msg", (data) => {
-            setDisplayMsg(data.message);
+            setDisplayMsg(data);
         });
+        socket.on("receive_current_room", (data) => {
+            setCurrentRoom(data);
+        })
     }, [socket]);
+
+    const joinNewRoom = (roomName) => {
+        socket.emit("join_room", roomName);
+    }
 
     return (
         <div className="App">
@@ -50,7 +60,7 @@ function App() {
             <div className="rooms-container">
                 {roomsList.length > 0 ?
                 roomsList.map(roomName => {
-                    return <p>{roomName}</p>
+                    return <p onClick={() => joinNewRoom(roomName)}>{roomName}</p>
                 }) : <p>no rooms found</p>}
             </div>
             <input placeholder='new room name' 
@@ -59,6 +69,7 @@ function App() {
                 }}
             />
             <button onClick={hostNewRoom}>host room</button>
+            <p className="current-room-indicator">Current room: {currentRoom}</p>
         </div>
     );    
 }
