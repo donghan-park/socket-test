@@ -19,6 +19,8 @@ const io = new Server(server, {
     }
 });
 
+var roomsList = [];
+
 // socket connection
 io.on("connection", (socket) => {
     console.log(`user connected: ${socket.id}`);
@@ -29,6 +31,16 @@ io.on("connection", (socket) => {
     socket.on("disconnect", (reason) => {
         console.log(`user disconnected: ${socket.id}`);
     })
+
+    socket.on("get_roomsList", () => {
+        socket.emit("receive_roomsList", roomsList);
+    })
+
+    socket.on("host_room", (roomName) => {
+        roomsList.push(roomName);
+        io.emit("receive_roomsList", roomsList);
+    })
+    // console.log(Array.from(io.sockets.adapter.rooms.keys()))
 });
 
 // initialize server listener
