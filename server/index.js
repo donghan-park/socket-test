@@ -21,6 +21,19 @@ const io = new Server(server, {
 
 var roomsList = [];
 
+const sendCurrRoomInfo = (socket) => {
+    const roster = Array.from(io.sockets.adapter.rooms.get(socket.currRoom) ?? []);
+    const data = {
+        name: socket.currRoom ?? '[Not in a room]',
+        roster: roster
+    }
+    if(socket.currRoom){
+        io.in(socket.currRoom).emit('receive_current_room', data);
+    } else {
+        socket.emit('receive_current_room', data);
+    }
+}
+
 const onSocketConnect = (socket) => {
     socket.on('send_msg', (data) => {
         if(socket.currRoom){
@@ -29,8 +42,10 @@ const onSocketConnect = (socket) => {
         }
     });
     
-    socket.on('disconnect', (reason) => {
+    socket.on('disconnecting', (reason) => {
         console.log(`user disconnected: ${socket.id}`);
+        if(socket.currRoom) socket.leave(socket.currRoom);
+        sendCurrRoomInfo(socket);
     });
 
     socket.on('get_roomsList', () => {
@@ -47,17 +62,18 @@ const onSocketConnect = (socket) => {
     });
 
     socket.on('get_current_room', () => {
-        socket.emit('receive_current_room', socket.currRoom ?? 'not in a room');
+        sendCurrRoomInfo(socket);
     });
 
     socket.on('join_room', (roomName) => {
         if(socket.currRoom){
             socket.leave(socket.currRoom);
+            sendCurrRoomInfo(socket);
             socket.currRoom = null;
         }
         socket.join(roomName);
         socket.currRoom = roomName;
-        socket.emit('receive_current_room', roomName);
+        sendCurrRoomInfo(socket);
     });
 }
 
