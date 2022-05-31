@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand&display=swap');
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.App {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  padding-top: 5rem;
+  background-color: rgb(219, 219, 249);
+  width: 100vw;
+  height: 100vh;
+}
+
+input {
+  border: 2px solid rgb(92, 92, 92);
+  border-radius: 10px;
+  height: 2rem;
+  padding-left: 0.5rem;
+  width: 10rem;
+  outline: none;
+
+  &:focus {
+    border: 2px solid rgb(186, 67, 67);
+  }
+}
+
+button {
+  outline: none;
+  border-radius: 10px;
+  height: 1.5rem;
+  padding: 0 0.5rem;
+  border: 2px solid rgb(92, 92, 92);
+  margin-left: 0.5rem;
+  background-color: rgb(234, 162, 162);
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(90%);
+  }
+}
+
+.rooms-container {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  h1 {
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.room-tag {
+  border: 2px solid black;
+  border-radius: 10px;
+  padding: 0.2rem 0.5rem;
+  width: 10rem;
+  background-color: rgb(205, 70, 70);
+  cursor: pointer;
+  margin-bottom: 0.3rem;
+  color: rgb(255, 255, 255);
+
+  &:hover {
+    filter: brightness(90%);
+  }
+}
+
+.curr-room-indicator {
+  margin-top: 0.5rem;
+  font-weight: bold;
+}

@@ -1,4 +1,4 @@
-import './App.css';
+import './App.scss';
 import io from 'socket.io-client';
 import {useState, useEffect} from 'react';
 
@@ -51,6 +51,13 @@ function App() {
         socket.emit("join_room", roomName);
     }
 
+    /*
+    - message demo test (same room restriction)
+    - available rooms
+    - current joined room
+    - all people currently in room
+    */
+
     return (
         <div className="App">
             <input 
@@ -62,19 +69,20 @@ function App() {
             />
             <button onClick={sendMessage}>Send Message</button>
             <p className="display-message">{displayMsg}</p>
-            <h1>ROOMS:</h1>
+            
             <div className="rooms-container">
+                <h1>ROOMS:</h1>
                 {roomsList.length > 0 ?
                 roomsList.map(roomName => {
-                    return <p key={roomName} onClick={() => joinNewRoom(roomName)}>{roomName}</p>
+                    return <p className='room-tag' key={roomName} onClick={() => joinNewRoom(roomName)}>{roomName}</p>
                 }) : <p>no rooms found</p>}
             </div>
-            <input placeholder='new room name' 
+            <input placeholder='New room name...' 
                 onChange={(event) => setHostRoomName(event.target.value)}
                 onKeyDown={(event) => onKeyEnter(event, hostNewRoom)}
             />
             <button onClick={hostNewRoom}>host room</button>
-            <p className="current-room-indicator">Current room: {currentRoom}</p>
+            <p className="curr-room-indicator">Current room: {currentRoom}</p>
         </div>
     );    
 }
