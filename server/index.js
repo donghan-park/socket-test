@@ -19,6 +19,64 @@ const io = new Server(server, {
     }
 });
 
+/*
+- rooms info
+    -> host room option
+    -> destroy room when last person leaves
+    * name:
+        * roster
+            * words
+        * curr_letters
+        * 
+
+- players info
+    * socket_id:
+        * nickname
+        * curr_room
+        * customization
+    
+1. is valid english word
+2. length >=3 and <=15
+3. not an existing word
+4. not lemmetization of any existing word
+5. can be made with:
+    - using available letters
+    - using all letters of existing word(s)
+    - using all letters of existing word(s) + available letters
+
+
+*/
+
+const enDict = require('check-if-word')('en');
+const lem = require('lemmatizer');
+
+const currWords = {
+    "apple": {
+        "player": "dongimon",
+        "subkey": "aelpp"
+    },
+    "mean": {
+
+    }
+}
+
+// return true or false with reason why
+const isValid = (input) => {
+    // check for english validity & length
+    if(!enDict.check(input) || input.length < 3 || input.length > 12) return false;
+
+    // for each existing word:
+    // check duplication
+    if(currWords[input]) return false;
+    // check lemmatization
+    for(const key of Object.keys(currWords)){
+        if(lem.lemmatizer(input) === key) return false; // lem library is inadequate
+        // ^ doesn't check for suffixes -er, -est, etc.
+    }
+
+    return true;
+}
+
 var roomsList = [];
 
 const sendCurrRoomInfo = (socket) => {
@@ -37,8 +95,9 @@ const sendCurrRoomInfo = (socket) => {
 const onSocketConnect = (socket) => {
     socket.on('send_msg', (data) => {
         if(socket.currRoom){
-            // io.in(socket.currRoom).emit('receive_msg', data);
-            socket.to(socket.currRoom).emit('receive_msg', data);
+            console.log(`is valid: ${isValid(data)}`);
+            io.in(socket.currRoom).emit('receive_msg', data);
+            // socket.to(socket.currRoom).emit('receive_msg', data);
         }
     });
     
