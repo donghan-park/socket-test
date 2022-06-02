@@ -50,13 +50,24 @@ const io = new Server(server, {
 const enDict = require('check-if-word')('en');
 const lem = require('lemmatizer');
 
+const getFreqList = (word) => {
+    let freqList = new Array(26).fill(0);
+
+    for(let c of word){
+        let i = c.charCodeAt(0) - 'a'.charCodeAt(0);
+        freqList[i]++;
+    }
+
+    return freqList;
+}
+
 const currWords = {
-    "apple": {
-        "player": "dongimon",
-        "subkey": "aelpp"
+    "sharp": {
+        "freqList": getFreqList("sharp")
     },
     "mean": {
-
+        "player": "samy",
+        "freqList": getFreqList("mean")
     }
 }
 
@@ -68,11 +79,57 @@ const isValid = (input) => {
     // for each existing word:
     // check duplication
     if(currWords[input]) return false;
+
+    var inputFreqList = getFreqList(input);
+    var possibleWords = [];
+
     // check lemmatization
     for(const key of Object.keys(currWords)){
-        if(lem.lemmatizer(input) === key) return false; // lem library is inadequate
-        // ^ doesn't check for suffixes -er, -est, etc.
+        if(key.length <= input.length){
+            if(lem.lemmatizer(input) === key) return false; // lem library is inadequate
+            // ^ doesn't check for suffixes -er, -est, etc.
+
+            var keyFreqList = currWords[key].freqList;
+            var isPossible = true;
+            var requiredLetters = [];
+
+            for(let i = 0; i < 26; i++){
+                let diff = inputFreqList[i] - keyFreqList[i];
+                if(diff < 0){
+                    isPossible = false;
+                    break;
+                } else if(diff > 0){
+                    requiredLetters.push([String.fromCharCode(97 + i), diff]);
+                    // ^ dont really need this; can use subtracted array and compare that with
+                    // another freqlist array that represents all available letters in pile
+                }
+            }
+
+            if(isPossible){
+                possibleWords.push([key, requiredLetters]);
+            }
+        }
     }
+
+    console.log(possibleWords);
+
+    if(possibleWords.length > 0){
+        for(let wordInfo of possibleWords){
+            if(wordInfo[1].length == 0){
+                // snatch
+            } else {
+                // check if required letters are in available letters pile
+                // if yes: snatch word + letters
+                // if not:
+                    // try all combinations of words + letters
+            }
+        }
+    } else {
+        // check if letters make up the word
+    }
+
+    // at this point, input word is valid & unique
+
 
     return true;
 }
